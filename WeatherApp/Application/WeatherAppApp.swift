@@ -9,9 +9,16 @@ import SwiftUI
 
 @main
 struct WeatherAppApp: App {
+    
+    let assembler: Assembler
+    
+    init() {
+        self.assembler = DefaultAssembler()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            self.assembler.resolve() as MainView
         }
     }
 }
