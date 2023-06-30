@@ -19,8 +19,6 @@ struct FetchWeatherForecastUseCaseMock: FetchWeatherForecastUseCaseType {
                                          longitude: .zero,
                                          elevation: .zero,
                                          currentWeather: CurrentWeatherModel(temperature: .zero,
-                                                                             windSpeed: .zero,
-                                                                             windDirection: .zero,
                                                                              time: Date()),
                                          hourly: WeatherHourlyModel(time: [], temperature: []),
                                          daily: WeatherDailyModel(time: [],

@@ -11,7 +11,6 @@ import Combine
 struct TodayDetailForecastCellEntity {
     let location: String
     let currentTemperature: String
-    let windSpeed: String
     var hourlyForecast: [HourlyCellEntity] = []
     var sunrise: String = ""
     var sunset: String = ""
@@ -55,6 +54,7 @@ struct MainViewModel {
     func transform(_ input: Input, disposeBag: DisposeBag) -> Output {
         let output = Output()
         
+        // get location as a trigger
         fetchLocationUseCase.getLocation()
             .compactMap { $0 }
             .receive(on: DispatchQueue.main)
@@ -64,6 +64,7 @@ struct MainViewModel {
             })
             .flatMap { coordinate -> AnyPublisher<Void, Never> in
                 
+                // fetch weather forecast
                 return fetchWeatherUseCase.fetchWeatherForecast(latitude: coordinate.latitude, longitude: coordinate.longitude)
                     .handleError(callback: { error in
                         output.errorMessage = error.localizedDescription
@@ -81,7 +82,7 @@ struct MainViewModel {
                 
                 }
             .receive(on: DispatchQueue.main)
-            .handleValue(callback: { data in
+            .handleValue(callback: { _ in
                     output.isLoading = false
                 }).sink()
         
@@ -92,12 +93,8 @@ struct MainViewModel {
     
     private func mapTodayForecast(forecast: WeatherResponseModel, coordinates: LocationCoordinates?) -> TodayDetailForecastCellEntity {
         
-        // populate temperature and windspeed data
-        let windSpeed = String(format: "%.f", forecast.currentWeather.windSpeed) + " " + "km/h"
-        
         var todayForecast = TodayDetailForecastCellEntity(location: coordinates?.locationName ?? "",
                                                           currentTemperature: forecast.currentWeather.temperature.formattedTemperature,
-                                                          windSpeed: windSpeed,
                                                           hourlyForecast: [])
         
         let currentDay = forecast.currentWeather.time.get(.day)
@@ -113,6 +110,7 @@ struct MainViewModel {
         let sunrise = forecast.daily.sunrise[indexInDailyArray]
         let sunset = forecast.daily.sunset[indexInDailyArray]
         
+        // populate hourly forecast array
         for hourlyDateSet in forecast.hourly.time.enumerated() {
             
             guard hourlyDateSet.element.get(.day) == currentDay && hourlyDateSet.element.get(.hour) >= currentHour else {

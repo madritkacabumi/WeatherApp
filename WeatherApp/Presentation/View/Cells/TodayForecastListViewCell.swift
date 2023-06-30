@@ -121,7 +121,7 @@ struct TodayForecastListViewCell_Previews: PreviewProvider {
     static var previews: some View {
         
         ZStack {
-            TodayForecastListViewCell(entity: TodayDetailForecastCellEntity(location: "New York", currentTemperature: "25°C", windSpeed: "10 km/h", hourlyForecast: [
+            TodayForecastListViewCell(entity: TodayDetailForecastCellEntity(location: "New York", currentTemperature: "25°C", hourlyForecast: [
                 HourlyCellEntity(hour: "10:00", isDay: true, temperature: "25°C"),
                 HourlyCellEntity(hour: "11:00", isDay: true, temperature: "26°C"),
                 HourlyCellEntity(hour: "12:00", isDay: true, temperature: "27°C")

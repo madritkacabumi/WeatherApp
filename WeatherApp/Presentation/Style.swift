@@ -10,7 +10,6 @@ import SwiftUI
 struct AppStyle {
     
     struct ImageResources {
-        static var appIcon: Image { Image("AppIcon") }
         static var weatherBackground: Image { Image("mainPageBackground") }
         static var sunrise: Image { Image(systemName: "sunrise") }
         static var sunset: Image { Image(systemName: "sunset") }

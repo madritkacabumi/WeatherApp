@@ -28,14 +28,10 @@ struct WeatherResponseModel: Codable {
 
 struct CurrentWeatherModel: Codable {
     let temperature: Float
-    let windSpeed: Double
-    let windDirection: Double
     let time: Date
     
     enum CodingKeys: String, CodingKey {
         case temperature
-        case windSpeed = "windspeed"
-        case windDirection = "winddirection"
         case time
     }
 }
@@ -45,8 +41,6 @@ extension CurrentWeatherModel {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.temperature = try container.decode(Float.self, forKey: .temperature)
-        self.windSpeed = try container.decode(Double.self, forKey: .windSpeed)
-        self.windDirection = try container.decode(Double.self, forKey: .windDirection)
         
         let dateString = try container.decode(String.self, forKey: .time)
         guard let formattedDate = DateFormatterUtils.dateFromString(dateString: dateString, format: "yyyy-MM-dd'T'HH:mm") else {
@@ -78,7 +72,7 @@ extension WeatherHourlyModel {
             }
             return formatedDate
         }
-        self.temperature =  try container.decode([Float].self, forKey: .temperature)
+        self.temperature = try container.decode([Float].self, forKey: .temperature)
     }
 }
 
