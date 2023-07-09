@@ -37,7 +37,6 @@ class LocationManager: LocationManagerType {
     init() {
         simulatedData = Bundle.main.decodeLocalJsonFile(jsonFileName: "simulated_locations") ?? []
         bindToApplicationLifecycle()
-        interruptionDate = Date().timeIntervalSinceReferenceDate
     }
     
     private func bindToApplicationLifecycle() {
@@ -58,19 +57,35 @@ class LocationManager: LocationManagerType {
     // MARK: - Start/Stop Timer
     private func startTimer() {
         
-        if let interruptionDate = interruptionDate {
-            let diffSinceInterrupted = Date().timeIntervalSinceReferenceDate - interruptionDate
-            index = (Int((diffSinceInterrupted / Self.locationInterval).rounded(.down)) + index) % simulatedData.count
-            self.interruptionDate = nil
-            broadcastLocation(increment: false)
+        guard let interruptionDate = interruptionDate else  {
+            setupTimer(.zero)
+            return
         }
         
-        Timer.publish(every: Self.locationInterval, tolerance: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
+        let diffSinceInterrupted = Date().timeIntervalSinceReferenceDate - interruptionDate
+
+        let progressedCycles = diffSinceInterrupted / Self.locationInterval
+        let remainedSeconds = (progressedCycles - progressedCycles.rounded(.down)) * Self.locationInterval
+        index = (Int(progressedCycles.rounded(.down)) + index) % simulatedData.count
+        
+        self.interruptionDate = nil
+        broadcastLocation(increment: false)
+        
+        setupTimer(Int(Self.locationInterval - remainedSeconds))
+    }
+    
+    private func setupTimer(_ after: Int) {
+        Just(())
+            .delay(for: .init(TimeInterval(after)), scheduler: RunLoop.current)
+            .handleValue(callback: { [weak self] _ in
+                print("after", after)
                 self?.broadcastLocation(increment: true)
-            }
-            .store(in: timerDisposeBag)
+            }).flatMap {
+                Timer.publish(every: Self.locationInterval, tolerance: 0.1, on: .main, in: .common)
+                    .autoconnect()
+            }.sink { [weak self] _ in
+                self?.broadcastLocation(increment: true)
+            }.store(in: timerDisposeBag)
         self.timerStarted = true
     }
     
